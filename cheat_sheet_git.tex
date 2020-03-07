@@ -1,0 +1,67 @@
+\documentclass[%
+	11pt,
+	a4paper,
+	utf8,
+	%twocolumn
+		]{article}	
+
+\usepackage{style_packages/podvoyskiy_article_extended}
+
+
+\begin{document}
+\title{Наиболее полезные конструкции\\системы контроля версий  \texttt{Git}}
+
+\author{}
+
+\date{}
+\maketitle
+
+\thispagestyle{fancy}
+
+\tableofcontents
+
+\section{Термины и определения}
+
+\noindent\texttt{HEAD} -- специальный \textit{указатель} на текущую \emph{локальную ветку}, которая в свою очередь ссылается на последнее зафиксированное состояние, т.е. на \emph{последний коммит}.
+
+
+\section{Конструкции \texttt{Git}}
+
+\subsection{Удаление файлов}
+
+Удалить файл из \emph{области индексирования} и заодно удалить указанный файл из рабочей папки. Чтобы система \texttt{Git} перестала работать с файлом, его нужно удалить из числа отслеживаемых (точнее, убрать из области индексирования) и зафиксировать данное изменение 
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ git rm file_name.py
+\end{lstlisting}
+
+
+Удалить файл из области индексирования\footnote{\texttt{Git} перестает следить за файлом, т.е. он становится \emph{неотслеживаемым}!}, но оставить его в рабочей папке. Данная команда в отличие от \texttt{git reset HEAD file\_name.py} может использоваться как до первой фиксации (\texttt{git commit}), так и после
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git rm --cached file_name.py
+\end{lstlisting}
+
+
+Удалить все файлы с расширением \texttt{.log} из директории \texttt{log}
+
+
+
+
+
+
+
+% Источники в "Газовой промышленности" нумеруются по мере упоминания 
+\begin{thebibliography}{99}\addcontentsline{toc}{section}{Список литературы}
+	\bibitem{  }{  }
+\end{thebibliography}
+
+%\listoffigures\addcontentsline{toc}{section}{Список иллюстраций}
+
+\end{document}
