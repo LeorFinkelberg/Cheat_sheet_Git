@@ -21,9 +21,6 @@
 \tableofcontents
 
 
-\section{Предостережения}
-
-
 \section{Термины и определения}
 
 \noindent\texttt{HEAD} -- специальный \textit{указатель} на текущую \emph{локальную ветку}, которая в свою очередь ссылается на последнее зафиксированное состояние, т.е. на \emph{последний коммит}.
@@ -54,6 +51,27 @@ git rm --cached file_name.py
 
 
 Удалить все файлы с расширением \texttt{.log} из директории \texttt{log}
+
+
+\subsection{Отправка данных на удаленный репозиторий}
+
+Для того чтобы отправить данные из локального репозитория на удаленный следует использовать конструкцию
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git push origin master
+\end{lstlisting}
+
+Но предварительно необходимо слить данные из удаленного репозитория с помощью команды
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git pull origin master --allow-unrelated-histories
+\end{lstlisting}
 
 
 
