@@ -302,6 +302,102 @@ git tag v1.4-lw
 \end{lstlisting}
 
 
+Отправить все теги на удаленный репозиторий. По умолчанию команда \texttt{git push} не отправляет теги на удаленный репозиторий
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git push origin --tags
+\end{lstlisting}
+
+
+\subsection{Работа с ветками}
+
+Вывести список существующих веток
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch
+\end{lstlisting}
+
+
+Создать новую ветку
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch testing
+\end{lstlisting}
+
+Переключиться на новую ветку
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout testing
+\end{lstlisting}
+
+Создать новую ветку и тут же переключитсья на нее
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout -b iss53
+\end{lstlisting}
+
+
+Внедрить внесенные изменения в готовый код
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git merge hotfix
+\end{lstlisting}
+
+Удалить ветку 
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch -d hotfix
+\end{lstlisting}
+
+Вывести ветки, НЕ объединенные с текущей веткой
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch --no-marged
+\end{lstlisting}
+
+
+Создать \emph{локальную копию ветки} \texttt{serverfix} на основе \emph{удаленной ветки} \texttt{origin/serverfix}. В результате будет получена локальная ветка, которая начинается там же, где и ветка \texttt{origin/serverfix}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout -b serverfix origin/serverfix
+\end{lstlisting}
+
+\noindent или альтернативный вариант
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout --track origin/serverfix
+\end{lstlisting}
+
 
 
 
