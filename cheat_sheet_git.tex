@@ -56,7 +56,16 @@ git commit -m 'Initial commit'
 language = cmd,
 numbers = none
 ]
-git commit -a -m 'Some commit'
+git commit -a -m 'Some comment'
+\end{lstlisting}
+
+Исправить комментарий коммита. Комментарий последнего коммита будет перезаписан
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git commit -m 'New some comment' --amend
 \end{lstlisting}
 
 
