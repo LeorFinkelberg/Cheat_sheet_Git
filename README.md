@@ -1,1 +1,1 @@
-# This is cheat sheet of Git
+# This is cheat sheet for Git
