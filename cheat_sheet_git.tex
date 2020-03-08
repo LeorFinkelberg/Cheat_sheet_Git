@@ -28,6 +28,38 @@
 
 \section{Конструкции \texttt{Git}}
 
+\subsection{Добавление файлов в область индексирования}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git add file_name.py
+git add .
+\end{lstlisting}
+
+
+\subsection{Фиксация изменений}
+
+Зафиксировать измененное состояние
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git commit -m 'Initial commit'
+\end{lstlisting}
+
+Зафиксировать измененное состояние, пропустив область индексирования
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git commit -a -m 'Some commit'
+\end{lstlisting}
+
+
 \subsection{Удаление файлов}
 
 Удалить файл из \emph{области индексирования} и заодно удалить указанный файл из рабочей папки. Чтобы система \texttt{Git} перестала работать с файлом, его нужно удалить из числа отслеживаемых (точнее, убрать из области индексирования) и зафиксировать данное изменение 
@@ -397,6 +429,47 @@ numbers = none
 ]
 git checkout --track origin/serverfix
 \end{lstlisting}
+
+Создать локальную копию ветки с именем \texttt{sf} на основе удаленной ветки \texttt{origin/serverfix}. Теперь локальная ветка \texttt{sf} поддерживает автоматический обмен данными с удаленной веткой \texttt{origin/serverfix}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout -b sf origin/serverfix
+\end{lstlisting}
+
+
+Для обращения к существующей ветке можно использовать краткую форму \texttt{@\{u\}}. К примеру, если мы следим из ветки \texttt{master} за веткой \texttt{origin/master}, то для краткости можно писать так
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git merge @{u}
+\end{lstlisting}
+вместо
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git merge origin/master
+\end{lstlisting}
+
+Вывести список веток \emph{наблюдения}. Все цифры представляют собой показатели, зафиксированные в момент последнего скачивания данных с каждого сервера. Данная команда не обращается к серверам, а просто сообщает локальные данные из кэша. Для получения актуальной информации о количестве новых коммитов на локальных и удаленных ветках следует извлечь данные со всех удаленных серверов и только затем воспользоваться этой командой, т.е.
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git fetch --all
+git branch -vv
+ iss53 7e424c3 [origin/iss53: ahead 2] forgot the brackets
+ master 1ae2a45 [origin/master] deploying index fix
+ serverfix 5ea463a [teamone/server-fix-good: ahead 3, behind] this should do it
+ ...
+\end{lstlisting} 
+
+
 
 
 
