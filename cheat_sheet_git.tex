@@ -26,6 +26,49 @@
 \noindent\texttt{HEAD} -- специальный \textit{указатель} на текущую \emph{локальную ветку}, которая в свою очередь ссылается на последнее зафиксированное состояние, т.е. на \emph{последний коммит}.
 
 
+\section{Фундаментальные концепции}
+
+При \emph{слиянии} веток снчала нужно перейти в ту ветку, в которую требуется слить данные, а затем применить команду \texttt{git merge}, т.е.
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout master
+git merge server
+\end{lstlisting}
+
+
+При \emph{перемещении}\footnote{Т.е. чтобы повторить изменения из одной ветки в другой} данных из одной ветки в другую следует сначала перейти в ту ветку, из которой требуется перенести данные, а затем воспользоваться \texttt{git rebase}, т.е.
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout experiment
+git rebase master
+\end{lstlisting}
+
+
+Общая схема работы в небольшой команде:
+\begin{itemize}
+	\item Некоторое время вы работаете в тематической ветке (например, \texttt{issue54}), и когда приходит время, сливаете результаты своего труда в ветку \texttt{master}
+	
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout master
+git merge issue54
+\end{lstlisting}
+	
+	\item Решив, что пришло время поделиться своими наработками с коллегами, вы скачиваете данные с сервера (\texttt{git fetch origin}), и если там появились изменения, сливаете к себе ветку \texttt{origin/master}, т.е. \texttt{git merge origin/master},
+	
+	\item После чего содержимое ветки \texttt{master} можно отправить на сервер \texttt{git push origin master}.
+\end{itemize}
+
+
+
 \section{Конструкции \texttt{Git}}
 
 \subsection{Добавление файлов в область индексирования}
@@ -211,6 +254,15 @@ numbers = none
 git log --oneline --decorate --all --graph
 \end{lstlisting}
 
+Отобразить только те не подвергавшиеся слиянию коммиты из ветки \texttt{origin/master}, которых нет в ветке \texttt{issue54}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log --no-merges issue54..origin/master
+\end{lstlisting}
+
 
 \subsection{Отмена индексирования}
 
@@ -245,7 +297,7 @@ git fetch origin
 \end{lstlisting}
 
 
-Отправить данные в ветку \texttt{master} на удаленном репозитории \texttt{origin}
+Отправить данные локальной ветки \texttt{master} на удаленный репозиторий \texttt{origin}
 
 \begin{lstlisting}[
 language = cmd,
@@ -479,17 +531,6 @@ git branch -vv
 \end{lstlisting} 
 
 
-
-
-
-
-
-
-
-
-
-
-
 \subsection{Отправка данных на удаленный репозиторий}
 
 Для того чтобы отправить данные из локального репозитория на удаленный следует использовать конструкцию
@@ -509,6 +550,42 @@ numbers = none
 ]
 git pull origin master --allow-unrelated-histories
 \end{lstlisting}
+
+
+\subsection{Перемещение данных}
+
+Изменения, зафиксированные в одной ветке, повторить в другой ветке (в \texttt{Git} это называется \emph{перемещением}). Например, чтобы повторить изменения из ветки \texttt{experiment} в ветке \texttt{master}, следует сначала перейти в ту ветку, из которой требуется перенести изменения (ветка \texttt{experiment}), а затем воспользоваться командой \texttt{git rebase}\footnote{Работает это следующим образом: ищется общий предок двух веток (текущей ветки и ветки, в которую выполняется перемещение), вычисляется разница, вносимая каждым коммитом текущей ветки, и сохраняется во временных файлах. После этого текущая ветка сопоставляется тому же коммиту, что и ветка, в которую осуществляется перемещение, и одно за другим происходят все изменения}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout experiment
+git rebase master
+\end{lstlisting}
+
+
+Внести изменения клиентской части (ветка \texttt{client}) в окончательную версию кода (ветка \texttt{master}), оставив изменения серверной части (ветка \texttt{server}) для дальнейшего тестирования. Другими словами, взять изменения клиентской части, не связанные с изменениями на серверной стороне, и воспроизвести их в ветке \texttt{master} можно следующим образом\footnote{По сути, команда приказывает <<перейти в ветку \texttt{client}, найти исправления от общего предка веток \texttt{client} и \texttt{server} и повторить их в ветке \texttt{master}>>}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git rebase --onto master server client
+\end{lstlisting}
+
+Переместить изменения из ветки \texttt{server} в ветку \texttt{master}, вне зависимости от того, в какой ветке вы находитесь, позволяет команда \texttt{git rebase [main\_branch] [topic\_branch]}. Эта команда переключает на тематическую ветку (в данном случае -- на ветку \texttt{server}) и воспроизводит ее содержимое в основной ветке (\texttt{master})
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git rebase master server
+\end{lstlisting}
+
+\remark{%
+    При перемещении изменений из одной ветки в другую, нужно перейти на ту ветку, \emph{из которой} планируется переместить изменения
+}
 
 
 
