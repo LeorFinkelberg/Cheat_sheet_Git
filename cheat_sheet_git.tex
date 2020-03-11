@@ -501,6 +501,32 @@ git checkout -b sf origin/serverfix
 \end{lstlisting}
 
 
+Вывести только те коммиты, которых нет в ветке \texttt{master}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log master..contrib
+\end{lstlisting}
+или так
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log contrib --not master
+\end{lstlisting}
+
+
+Вывести только те наработки из \emph{тематической ветки}, которые появились там после расхождения с веткой \texttt{master}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git diff master...contrib
+\end{lstlisting}
+
 Для обращения к существующей ветке можно использовать краткую форму \texttt{@\{u\}}. К примеру, если мы следим из ветки \texttt{master} за веткой \texttt{origin/master}, то для краткости можно писать так
 
 \begin{lstlisting}[
