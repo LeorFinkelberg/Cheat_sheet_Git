@@ -263,6 +263,15 @@ numbers = none
 git log --no-merges issue54..origin/master
 \end{lstlisting}
 
+Вывести информацию о том чем ветка \texttt{origin/master} будет отличаться от ветки \texttt{master}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log origin/master..master -p
+\end{lstlisting}
+
 
 \subsection{Отмена индексирования}
 
