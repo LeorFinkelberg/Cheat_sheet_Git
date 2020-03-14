@@ -71,6 +71,28 @@ git merge issue54
 
 \section{Конструкции \texttt{Git}}
 
+\subsection{Натсройка Git}
+
+Задать глобальные настройки можно следующим образом
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git config --global user.name "[name]"
+git config --global user.email "[email address]"
+\end{lstlisting}
+
+Для того чтобы \texttt{Git} при слияниях, которые сопроваждаются разрешением конфликтов, использовал кэш следует воспользоваться конструкцией
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git config --global rerere.enabled true
+\end{lstlisting}
+
+
 \subsection{Добавление файлов в область индексирования}
 
 \begin{lstlisting}[
