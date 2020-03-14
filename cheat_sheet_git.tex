@@ -536,6 +536,15 @@ numbers = none
 git diff master...contrib
 \end{lstlisting}
 
+Вывести изменения, которые присутствуют только в ветке \texttt{master}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git diff origin/master..master
+\end{lstlisting}
+
 Для обращения к существующей ветке можно использовать краткую форму \texttt{@\{u\}}. К примеру, если мы следим из ветки \texttt{master} за веткой \texttt{origin/master}, то для краткости можно писать так
 
 \begin{lstlisting}[
