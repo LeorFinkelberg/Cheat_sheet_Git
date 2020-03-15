@@ -665,6 +665,24 @@ git cherry-pick e43a6fd3e9488...
 \end{lstlisting}
 
 
+\subsection{Удаление коммитов}
+
+Для того чтобы удалить послдений коммит следует сначала удалить коммит в локальном репозитории
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git rebase -i HEAD~2
+\end{lstlisting}
+а затем отправить данные в форсированном режиме на удаленный репоизторий
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git push origin +master --force
+\end{lstlisting}
 
 
 
