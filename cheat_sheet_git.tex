@@ -294,7 +294,7 @@ numbers = none
 git log --no-merges issue54..origin/master
 \end{lstlisting}
 
-Вывести информацию о том чем ветка \texttt{origin/master} будет отличаться от ветки \texttt{master}
+Вывести информацию о том чем ветка \texttt{origin/master} будет отличаться от ветки \texttt{master}\footnote{Этот прием бывает полезен тогда, когда требуется предварительно посмотреть данные, которые будут слиты в ветку} (каких коммитов нет в ветке \texttt{origin/master})
 
 \begin{lstlisting}[
 language = cmd,
@@ -302,6 +302,23 @@ numbers = none
 ]
 git log origin/master..master -p
 \end{lstlisting}
+
+Еще данный синтаксис часто используется для просмотра информации, которую вы собираетесь отправить на удаленный сервер
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log origin/master..HEAD
+\end{lstlisting}
+или короткий вариант
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log origin/master..
+\end{lstlisting}
+так как \texttt{Git} вместо пропущенного фрагмента подставляет \texttt{HEAD}.
 
 Вывести информацию из журнала ссылок\footnote{Этот способ работает только для данных, которые все еще находятся в журнале ссылок, поэтому его невозможно исопльзовать для просмотра коммитов, возраст которых превышает несколько месяцев}
 
@@ -728,7 +745,7 @@ numbers = none
 git show master
 \end{lstlisting}
 
-\subsection{Ссылки на предков коммитов}
+\subsection{Ссылки на предков}
 
 Для просмотра \emph{предыдущего коммита} достаточно написать \texttt{HEAD\^}, что означает <<родитель HEAD>>
 
@@ -754,6 +771,10 @@ git show d921970^2
 \end{lstlisting}
 
 Указанные обозначения можно комбинировать. К примеру, второго родителя четвертого от конца ветки коммита (при условии, что это коммит слияния) можно получить, написав \lstinline{HEAD~3^2}.
+
+\subsection{Диапазоны коммитов}
+
+При управлении ветками часто бывает нужно 
 
 
 
