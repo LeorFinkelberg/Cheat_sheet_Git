@@ -582,6 +582,13 @@ numbers = none
 ]
 git log contrib --not master
 \end{lstlisting}
+или так
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log ^master contrib
+\end{lstlisting}
 
 
 Вывести только те наработки из \emph{тематической ветки}, которые появились там после расхождения с веткой \texttt{master}
@@ -774,7 +781,33 @@ git show d921970^2
 
 \subsection{Диапазоны коммитов}
 
-При управлении ветками часто бывает нужно 
+Вывести все коммиты, достижимые по ссылке \texttt{refA} или \texttt{refB}, но не достижимые по ссылке \texttt{refC}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log refA refB ^refC
+git log refA refB --not refC
+\end{lstlisting}
+
+Вывести только те коммиты, которые есть либо в ветке \texttt{master}, либо в ветке \texttt{experiment}, но не в обеих ветках одновременно
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log master...experiment
+\end{lstlisting}
+
+С этой командой часто используют параметр \lstinline{--left-right}, позволяющий посмотреть, с какой стороны диапазона находится каждый коммит
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log --left-right master...experiment
+\end{lstlisting}
 
 
 
