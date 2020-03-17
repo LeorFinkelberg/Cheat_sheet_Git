@@ -866,6 +866,20 @@ numbers = none
 git stash apply stash@{2}
 \end{lstlisting}
 
+\subsection{Принудительно перезаписать локальные файлы}
+
+Если требуется локальные файлы перезаписать файлами с удаленного сервера, то алгоритм следующий
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git fetch --all
+get reset --hard origin/master
+\end{lstlisting}
+
+Команда \lstinline{git fetch --all} скачивает отсутствующие файлы с удаленного репозитория без попытки слить или переместить данные, а \lstinline{git reset --hard origin/master} <<сбрасывает>> ветку \texttt{master}. Опция \lstinline{--hard} изменяет все файлы в рабочем дереве таким образом, чтобы они совпадали с файлами из \texttt{master/origin}.
+
 
 % Источники в "Газовой промышленности" нумеруются по мере упоминания 
 \begin{thebibliography}{99}\addcontentsline{toc}{section}{Список литературы}
