@@ -898,6 +898,18 @@ git stash pop
 \end{lstlisting}
 которая возвращает сохраненную в буфере информацию в ветку и немедленно удаляет ее из буфера.
 
+\subsection{Более сложные варианты скрытия}
+
+Чтобы не скрывать данные, которые были проиндексированы командой \texttt{git add}, следует написать
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git stash save --keep-index
+\end{lstlisting}
+
+
 
 
 \subsection{Принудительно перезаписать локальные файлы}
