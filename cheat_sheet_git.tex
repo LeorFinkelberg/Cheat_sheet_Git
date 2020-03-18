@@ -584,7 +584,7 @@ git checkout -b sf origin/serverfix
 \end{lstlisting}
 
 
-Вывести только те коммиты, которых нет в ветке \texttt{master}
+Вывести только те коммиты, которых нет в первой ветке (ветка \texttt{master})
 
 \begin{lstlisting}[
 language = cmd,
@@ -839,6 +839,10 @@ git stash save
 \end{lstlisting}
 можно будет перейти на другую ветку, скрыв наработки в буфере.
 
+\remark{%
+По умолчанию команда \texttt{git stash} сохраняет только файлы из \emph{области индексирования}
+}
+
 Теперь можно легко менять ветки и работать над другими фрагментами проекта -- все изменения хранятся в стеке. Увидеть содержимое позволяет команда
 
 \begin{lstlisting}[
@@ -879,7 +883,7 @@ numbers = none
 git stash apply --index
 \end{lstlisting}
 
-При этом команда \texttt{apply} только возвращает данные в ветке, но из стека они никуда не деваются. Убрать их из стека позволяет команда \texttt{git stash drop} с именем удаляемого файла
+При этом команда \texttt{apply} только возвращает данные в ветку, но из стека они никуда не деваются. Убрать их из стека позволяет команда \texttt{git stash drop} с именем удаляемого файла
 
 \begin{lstlisting}[
 language = cmd,
@@ -908,6 +912,8 @@ numbers = none
 ]
 git stash save --keep-index
 \end{lstlisting}
+
+Команда \texttt{git stash} по умолчанию сохраняет только данные из области индексирования, но параметр \lstinline{--include-untracked} или \lstinline{-u} заставляет систему \texttt{Git} сохранять также все \emph{неотслеживаемые файлы}.
 
 
 
