@@ -981,6 +981,271 @@ git clean -d -n -x
 \end{lstlisting}
 
 
+\subsection{Подписи с помощью GPG}
+
+\subsubsection{Общие сведения}
+
+GPG (также известный как GnuPG) создавался как свободная альтернатива несвободному PGP. Утилита GPG может испольоваться для симметричного шифрования, но в основном используется для ассиметричного шифрования информации.
+
+Если кратко, то при симметричном шифровании для шифроваки и расшифровки сообщения используется один ключ, а при ассиметричном шифровании используется два ключа -- публичный и приватный. Публичный используется для шифрования и его мы можем дать своим друзьям, а приватный -- для расшифровки, и его вы должны хранить в надежном месте.
+
+При такой схеме расшифровать сообщение может только владелец приватного ключа (даже тот, кто зашифровал сообщение, не может произвести обратную операцию).
+
+\remark{%
+Сообщения, теги и пр. подписывают для того чтобы подтвердить, что сообщение написано именно вами и не изменялось в процессе передачи. Если сообщение будет изменено, то при проверке подписи это будет указано
+}
+
+Чтобы создать ключ, следует запустить утилиту командной строки \texttt{gpg}\footnote{Для операционной системы \texttt{MacOS X} \url{https://gpgtools.org/}} с аргументом \\\mbox{\lstinline{--full-generate-key}} (допустимо и с аргументом \lstinline{--gen-key}, но в этом случае не будет возможности выбрать несколько важных параметров\footnote{Выбор расширяется, елси добавить параметр \lstinline{--expert}})
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ gpg --full-generate-key --expert
+
+pg (GnuPG/MacGPG2) 2.2.17; Copyright (C) 2019 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+(1) RSA and RSA (default)
+(2) DSA and Elgamal
+(3) DSA (sign only)
+(4) RSA (sign only)
+(7) DSA (set your own capabilities)
+(8) RSA (set your own capabilities)
+(9) ECC and ECC
+...
+\end{lstlisting}
+
+\remark{%
+Важно иметь в виду, что выбрав вариант (3) DSA (sign only) или (4) RSA (sign only) нельзя будет шифровать сообщения и файлы
+}
+
+Для RSA ключа размером 2048 бит вполне достаточно, но можно выбрать и размер до 4096 бит (а вот использовать ключи размера меньще 2048 бит небезопасно).
+
+Если выбрать ограниченный срок действия ключа, то по истечению его срока ключ будет признан недействительным\footnote{Можно продлить срок действия ключа, пока он не истечет}.
+
+В завершении генерируется ключ и добавляется в связку ключей. В связке ключей может находится множество ключей. Также на этом этапе создается \emph{сертификат отзыва} -- файл, с помощью которого созданный ключ можно отозвать (признать недействительным). Рекомендуется хранить его в безопасном месте.
+
+Комметарии к сообщению \texttt{gpg}:
+
+\begin{itemize}
+	\item \texttt{rsa} -- алгоритм шифрования RSA,
+	
+	\item \texttt{2048} -- длина ключа,
+	
+	\item \texttt{1970-01-01} -- дата создания ключа,
+	
+	\item \texttt{2BB680...E426AC} -- отпечаток ключа. Его следует сверять при импортировании чужого публичного ключа -- у обоих сторон он должен быть одинаков, 
+	
+	\item \texttt{uid} -- идентификатор (user-id),
+	
+	\item \texttt{pub} -- публичный ключ,
+	
+	\item \texttt{sub} -- публичный подключ,
+	
+	\item \texttt{sec} -- секретный ключ,
+	
+	\item \texttt{ssb} -- секретный подключ.
+	
+   \item \texttt{S} -- подпись (signing),
+   
+   \item \texttt{C} -- подпись ключа (certification),
+   
+   \item \texttt{E} -- шифрование (encryption),
+   
+   \item \texttt{A} -- авторизация (authentication).
+\end{itemize}
+
+Файл конфигурации храниться по адресу \lstinline{~./gnupg/gpg.conf}. Пример файла
+
+\begin{lstlisting}[
+title = {\sffamily gpg.conf},
+language = cmd,
+numbers = none
+]
+keyid-format 0xlong
+throw-keyids
+no-emit-version
+no-comments
+\end{lstlisting}
+
+Здесь \texttt{keyid-format 0xlong} -- формат вывода идентификатора ключа. У каждого ключа и подключа есть свой идентификатор. По умолчанию он не выводится. Допустимые значения:
+
+\begin{itemize}
+	\item \texttt{none} (не выводить),
+	
+	\item \texttt{short} (короткая запись),
+	
+	\item \texttt{0xshort} (короткая запись с префиксом <<0x>>),
+	
+	\item \texttt{long} (короткая запись с префиксом <<0x>>),
+	
+	\item \texttt{0xlong} (длинная запись с префиксом <<0x>>).
+\end{itemize}
+
+Далее \texttt{throw-keyids} -- не включать информацию о ключе в зашифрованное сообщение. Эта опция может быть полезна для анонимизации получателя сообщения.
+
+\texttt{no-emit-version} -- не вставлять версию GPG в зашифрованное сообщение.
+
+\texttt{no-comments} -- убирает все комментарии из зашифрованного сообщения.
+
+В файле конфигурации эти опции записываются без префикса \lstinline{--}.
+
+Команды и опции:
+
+\begin{itemize}
+	\item \lstinline{--armor / -a}: созадет ASCII (символьный) вывод. При шифровании GPG по умолчанию создает бинарный вывод. При использовании этой опции GPG кодирует информацию кодировкой Radix-64,
+	
+	\item \lstinline{--encrypt / -e}: зашифровать сообщение,
+	
+	\item \lstinline{--recipient / -r}: указать ключ, который будет использоваться для шифрования. Можно использовать информацию о пользователе (имя, почта), идентификатор ключа, отпечаток ключа,
+	
+	\item \lstinline{--decrypt / -d}: расшифровать сообщение,
+	
+	\item \lstinline{--sign / -s}: подписать сообщение. Подпись при этом будет располагаться отдельно самого сообщения,
+	
+	\item \lstinline{--clear-sign / --clearsign}: подписать сообщение. Подпись при этом сохраняется вместе с сообщением,
+	
+	\item \lstinline{--local-user / -u}: указать ключ, который будет использоваться для подписи. Схож с опцией \lstinline{--recipient}, но это не одно и то же,
+	
+	\item \lstinline{--verify}: проверить подпись,
+	
+	\item \lstinline{--list-keys / -k}: вывести список публичных ключей,
+	
+	\item \lstinline{--list-secret-keys / -K}: вывести список приватных ключей,
+	
+	\item \lstinline{--export}: экспортировать публичный ключ в файл, который потом можно куда-нибудь отправить,
+	
+	\item \lstinline{--import}: импортировать публичный ключ,
+	
+	\item \lstinline{--edit-key}: редактировать ключ,
+	
+	\item \lstinline{--expert}: режим <<эксперта>>.  
+\end{itemize}
+
+Примеры использования:
+
+Зашфровать файл \texttt{decrypted.txt} в файл \texttt{encrypted.gpg} ключом \texttt{0x12345678}. При этом итоговый файл будет текстовым, а не бинарным
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+gpg -a -r 0x12345678 -e decrypted.txt > encrypted.gpg
+\end{lstlisting}
+
+Расшифровать файл \texttt{encrypted.gpg} кючом \texttt{0x12345678} и сохранить его в файл \texttt{decrypted.txt}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+gpg -r 0x12345678 -d encrypted.gpg > decrypted.txt
+\end{lstlisting}
+
+Подписать файл \texttt{message.txt} ключом \texttt{0x12345678} и сохранить подпись в файл \texttt{sign.asc}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+gpg -u 0x12345678 -s message.txt > sign.asc
+\end{lstlisting}
+
+Подписать файл \texttt{message.txt} ключом \texttt{0x12345678} и записать сообщение с подписью в файл \texttt{message.gpg}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+gpg -r 0x12345678 --clearsign message.txt > message.gpg
+\end{lstlisting}
+
+Проверить подпись файла \texttt{message.txt}, которая записана в файле \texttt{message.asc}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+gpg --verify message.asc message.txt
+\end{lstlisting}
+
+Импортировать публичный ключ из файла \texttt{pubkey.gpg}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+gpg --import pubkey.gpg
+\end{lstlisting}
+
+Чтобы заставить \texttt{Git} использовать закрытый ключ, следует установить значение конфигурационного параметра \texttt{user.signingkey}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git config --global user.signingkey 0A46826A
+\end{lstlisting}
+
+Теперь \texttt{Git} будет использовать этот ключ по умолчанию для подписи тегов и коммитов.
+
+\subsubsection{Подписи коммитов}
+
+Чтобы подписать отдельный коммит, следует
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git commit -a -S -m 'signed commit'
+\end{lstlisting}
+
+Для просмотра и проверки таких подписей команда \texttt{git log} снабжена параметром \\\mbox{\lstinline{--show-signature}}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log --show-signature -1
+\end{lstlisting}
+
+С помощью параметра \lstinline{--verify-signatures} можно заставить проверять слияния и отклонять их, если коммит не содержит доверенной GPG-подписи.
+
+Если воспольоваться этим параметром при слиянии с веткой, содержащей неподписанные и недействительные коммиты, слияние выполнено не будет
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git merge --verify-signatures non_verify_branch
+\end{lstlisting}
+
+Если же ветка, с которой осуществляется слияние, содержит только корректно подписанные коммиты, то команда \texttt{merge} сначала покажет все проверенные ею подписи, а потом перейдет непосредственно к слиянию
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git merge --verify-signatures signed_branch
+\end{lstlisting}
+
+Можно также воспользоваться параметром \texttt{-S} команды \texttt{git merge} для подписи коммита, \emph{образующегося в результате слияния}
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git merge --verify-signatures -S signed_branch
+\end{lstlisting}
+
+Итоговый коммит слияния получит подпись.
+
+
+
+
 
 
 
