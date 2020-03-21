@@ -1244,6 +1244,47 @@ git merge --verify-signatures -S signed_branch
 Итоговый коммит слияния получит подпись.
 
 
+\subsection{Поиск}
+
+По умолчанию команда \texttt{git grep} выполняет поиск среди всех файлов вашей рабочей директории. Параметр \texttt{-n} указывает номера строк, в которых была найдена заданная подстрока
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git grep -n 'section' *.tex
+\end{lstlisting}
+
+Вывести список файлов, в которых встречаются строки, удовлетворяющие поисковому шаблону, и дополнительно для каждого файла указать число  совпадений
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git grep --count 'section' *.tex
+\end{lstlisting}
+
+Вывести список файлов текущей директории (и ее поддиректорий) с указанием строк, удовлетворяющих поисковому шаблону; сводки по каждому файлу разделяютс пустой строкой и отображается заголовок файла
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git grep --break --heading 'section'
+\end{lstlisting}
+
+Чтобы увидеть историю функции или строки кода в кодовой базе следует исопльзовать конструкцию
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log -L :commit:cheat_sheet_git.tex
+\end{lstlisting}
+
+
+
+
 
 
 
