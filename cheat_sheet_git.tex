@@ -139,12 +139,36 @@ numbers = none
 git ls-tree -r HEAD~
 \end{lstlisting}
 
+Вывести список директорий
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git ls-tree -d HEAD
+\end{lstlisting}
+
 Вывести текущее содержимое индекса (снимок, предложенный для следующего коммита)
 \begin{lstlisting}[
 language = cmd,
 numbers = none
 ]
-git ls-files
+git ls-files -s
+\end{lstlisting}
+
+Вывести список модифицированных файлов
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git ls-files -m
+\end{lstlisting}
+
+Вывести список <<прочих>> файлов, т.е. файлов, находящихся в текущей директории, но не вошедших в снимок
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git ls-files -o
 \end{lstlisting}
 
 
