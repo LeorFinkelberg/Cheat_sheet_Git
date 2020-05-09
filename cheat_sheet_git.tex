@@ -162,21 +162,23 @@ Automatic merge faild; fix confilcts and then commit the result.
 Хотелось бы понять, что именно стало причиной проблемы. Открыв файл, мы увидим примерно такую картину
 \begin{lstlisting}[
 language = cmd,
-title = {\sffamily hello.rb},
+title = {\sffamily Так будет выглядеть файл hello.rb после `git merge mundo`},
 numbers = none
 ]
 #! /usr/bin/env ruby
 
+# this function prints out A GREETING!
 def hello
 <<<<<<< HEAD
-    puts 'hola world'
+    puts 'hello Python'
 =======
-    puts 'hello mundo'
->>>>>>> mundo
+    puts 'HELLO MUNDO'
+>>>>>>> whitespace
 end
 
-hello()
 \end{lstlisting}
+
+Теперь этот файл можно аккуратно изучить и поправить строки (удалить те, которые не нужны, и оставить те, которые нужны), а затем зафиксировать изменения с помощью \texttt{git commit}.
 
 На обеих ветках в этот файл добавлялось некое содержимое, но некоторые коммиты модифицировали одни и те же строки, что и стало причиной конфликта.
 
@@ -190,6 +192,59 @@ numbers = none
 git checkout --confilct=diff3 hello.rb
 \end{lstlisting}
 
+После применения этой команды (применяется она сразу после \texttt{git merge}) файл будет выглядеть так
+\begin{lstlisting}[
+language = cmd,
+title = {\sffamily Так будет выглядеть файл hello.rb после `git checkout --conflict`},
+numbers = none
+]
+#! /usr/bin/env ruby
+
+# this function prints out A GREETING!
+def hello
+<<<<<<< ours
+    puts 'hello Python'
+||||||| base
+    puts 'hello mundo'
+=======
+    puts 'HELLO MUNDO'
+>>>>>>> theirs
+end
+\end{lstlisting}
+
+Теперь файл можно поправить в ручную, удалив ненужные строки. Но требуется быть очень внимательным, потому как в этом режиме не все конфликты изменений будут отображаться. В отношении некоторых изменений \texttt{Git} принимает решение.
+
+Получить список всех уникальных коммитов, сделанных в любой из участвующих в слиянии веток можно следующим образом
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log --oneline --left-right HEAD...MERGE_HEAD
+\end{lstlisting}
+
+Можно вывести информацию об изменениях по каждому коммиту из сливаемых веток
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log --oneline --left-right -p HEAD...whitespace
+\end{lstlisting}
+
+Получить список только тех коммитов с каждой стороны слияния, которые касаются только файла, являющегося в данный момент причиной конфликта можно, добавив параметр \verb|--merge|
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log --oneline --left-right --merge
+\end{lstlisting}
+
+Если добавить параметр \texttt{-p}, то получим список изменений, внесенных в файл, в котором возник конфликт
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git log -p --oneline --left-right --merge
+\end{lstlisting}
 
 \section{Конструкции \texttt{Git}}
 
