@@ -146,6 +146,51 @@ numbers = none
 
 В простейшем случае можно применить все изменения сразу, выбрав \texttt{y}, или отказаться от них, выбрав \texttt{n}. Но еще можно попросить систему разбить блок изменений (так называемый ханк) на атомарные изменения с помощью \texttt{s}, а затем принимать или отклонять изменения по отдельности.
 
+Рассмотрим пример. Предположим, у нас есть пара долгоживущих веток (\texttt{master} и \texttt{mundo}), в каждой из которых присутствует несколько коммитов, но при этом попытки их слияния не удаются по причине конфликта.
+
+При попытке слить содержимое ветки получаем конфликт
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ git merge mundo
+Auto-merging hello.rb
+CONFLICT (content): Merge conflict in hello.rb
+Automatic merge faild; fix confilcts and then commit the result.
+\end{lstlisting}
+
+Хотелось бы понять, что именно стало причиной проблемы. Открыв файл, мы увидим примерно такую картину
+\begin{lstlisting}[
+language = cmd,
+title = {\sffamily hello.rb},
+numbers = none
+]
+#! /usr/bin/env ruby
+
+def hello
+<<<<<<< HEAD
+    puts 'hola world'
+=======
+    puts 'hello mundo'
+>>>>>>> mundo
+end
+
+hello()
+\end{lstlisting}
+
+На обеих ветках в этот файл добавлялось некое содержимое, но некоторые коммиты модифицировали одни и те же строки, что и стало причиной конфликта.
+
+На помощь приходит команда \verb|git checkout --conflict|, которая повторно выгружает содержимое файла и заменяет маркеры конфликта слияния. Это может пригодится в ситуации, когда требуется сбросить маркеры и снова попробовать разрешить конфликт. 
+
+Параметру \verb|--conflict| можно передать значения \texttt{diff3} и \texttt{merge} (последнее используется по умолчанию). Значения \texttt{diff3} заставляет \texttt{Git} выводить помимо <<их>>, <<нашей>> еще и <<базовую>> версию файла
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout --confilct=diff3 hello.rb
+\end{lstlisting}
+
+
 \section{Конструкции \texttt{Git}}
 
 \subsection{Настройка Git}
