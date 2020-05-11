@@ -312,6 +312,14 @@ numbers = none
 git log --cc -p
 \end{lstlisting}
 
+Команда \texttt{git checkout --conflict} позволяет вернуть файл в состояние конфликта
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout --conflict=merge hello.rb
+\end{lstlisting}
+
 \subsection{Слияние поддеревьев}
 
 Идея слияния поддеревьев состоит в том, что один из проектов проецируется во вложенную папку другого, и наоборот.
@@ -362,6 +370,80 @@ git merge --squash -s subtree --no-commit rack_branch
 numbers = none
 ]
 git diff-tree -p rack_branch
+\end{lstlisting}
+
+\section{Подмодули}
+
+\section{Пакеты}
+
+Система \texttt{Git} умеет <<упаковывать>> данные в один файл. Существует разные сценарии, в которых такое поведение востребовано. Например, если в текущий момент нет доступа к общему серверу, а нужно переслать кому-то по электронной почте свои наработки, не передавая 40 коммитов командой \texttt{format-patch}.
+
+Именно в таких случаях на помощь приходит команда \texttt{git bundle}. Она упакует в бинарный файл все данные, которые в обычной ситуации вы отправили бы на сервер командой \texttt{git push}, и этот файл можно будет без проблем переслать по электронной почте или записать на флеш-накопитель, а затем распаковать в целевой хранилище
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git bundle create repo.bundle HEAD master
+\end{lstlisting}
+
+Если репозиторий предназначен для клонирования на новом месте, в пакет добавляется еще и указатель \texttt{HEAD}, как и было сделано в данном случае.
+
+Появится файл \texttt{repo.bundle} со всем необходимыми для воссоздания ветки \texttt{master} вашего репозитория. Теперь этот файл можно отправить по почте или записать на диск. 
+
+Чтобы восстановить репозиторий из бинарного файла его можно клонировать в папку 
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ git clone repo.bundle repo
+$ cd repo
+$ git log --oneline
+\end{lstlisting}
+
+Если указатель \texttt{HEAD} не входит в список ссылок, при распаковке нужно будет указать \verb|-b master| или другую присутствующую в пакете ветку, в противном случае система не будет знать, в какую ветку ей следует перейти, т.е.
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git clone -b master repo.bundle repo
+\end{lstlisting}
+
+Если нужно передать не все коммиты, а только несколько последних, то можно указать диапазон интересующих коммитов. Для этого мы снова воспользуемся командой \texttt{git bundle create}, передав ей \emph{имя} будущего \emph{пакета} и \emph{диапазон коммитов}, которые следует в этот пакет включить
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git bundle create commits.bundle 389b3f2..master
+\end{lstlisting}
+
+В данном случае в пакет будут включены коммиты, начиная с первого потомка коммита \texttt{389b3f2} и заканчивая последним коммитом ветки.
+
+Теперь в нашей папке появился файл \texttt{commits.bundle}. Если его отправить коллеге, тот сможет импортировать наши коммиты в исходный репозиторий, даже если там параллельно велась некая работа.
+
+Перед импортированием пакета в репозиторий можно посмотреть его содержимое
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git bundle verify commits.bundle
+\end{lstlisting}
+
+Команда проверяет корректность пакета и наличие всех предков коммитов, необходимых для правильного восстановления.
+
+Чтобы посмотреть, с чем нам придется работать можно извлечь ветку \texttt{master} из переданного репозитория \texttt{commits.bundle} в другую ветку \texttt{other-master}
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git fetch commits.bundle master:other-master
+\end{lstlisting}
+а затем
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git checkout other-master
+git log --oneline
 \end{lstlisting}
 
 
