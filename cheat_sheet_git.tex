@@ -25,6 +25,42 @@
 
 \noindent\texttt{HEAD} -- специальный \textit{указатель} на текущую \emph{локальную ветку}, которая в свою очередь ссылается на последнее зафиксированное состояние, т.е. на \emph{последний} сделанный в ней \emph{коммит}. 
 
+\section{Настройка строки приглашения в командной оболочке \texttt{bash}}
+
+Для того чтобы настроить автодополнение команд и строку приглашения в командой оболочке \texttt{bash} первым делом нужно скачать файл \texttt{contrib/completion/git-completion.bash} и поместить его копию в домашнюю директорию
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ curl -o ~/git-completion.bash https://raw.githubusercontent.com\
+                /git/git/master/contrib/completion/git-completion.bash
+$ echo '. ~/git-completion.bash' >> .bash_profile
+\end{lstlisting}
+
+Затем следует скачать файл \texttt{contrib/completion/git-prompt.sh} и сохранить его также в домашней директории
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ curl -o ~/git-prompt.sh https://github.com/git/git/blob/master/contrib\
+                /completion/git-prompt.sh
+$ echo $'. ~/git-prompt.sh\nexport GIT_PS1_SHOWDIRTYSTATE=1\n
+                export PS1=\'\w$(__git_ps1 " (%s)")\$ \'' >> .bash_profile
+\end{lstlisting}
+
+Выражение \verb|$'...'| умеет интерпретировать escape-последовательности типа \verb|\n|, \verb|\t| и пр., но выражение \verb|'\w$(__git_ps1 " (%s)")\$ '| стоящее в этой строке как подстрока должно быть заключено в одинарные кавычки, тогда как аргумент функции \verb|__git_ps1| должен быть заключен в двойные кавычки, поэтому одинарные кавычки подстроки приходится экранировать \verb|\'|. Конструкция \verb|$(...)| подставляет то, что возвращает выражение, заключенное в круглые скобки.
+
+Однако строку приглашения можно сделать интереснее если переменной \texttt{PS1} передать
+\begin{lstlisting}[
+language = cmd,
+title = {\sffamily .bash\_profile},
+numbers = none
+]
+export PS1='\[\e[36m\][\u]\[\e[m\]:\[\e[33;1m\]\w$(__git_ps1 " (%s)")\[\e[m\]\$ '
+\end{lstlisting}
+
+Запись \verb|\u| означает имя пользователя, \verb|\w| как и раньше -- текущую директорию, а символ \verb|\$| означает <<сырой>> символ доллара как приглашение командной оболочки.
+
 
 \section{Фундаментальные концепции}
 
@@ -444,6 +480,73 @@ numbers = none
 ]
 git checkout other-master
 git log --oneline
+\end{lstlisting}
+
+\section{Переменные среды}
+
+\texttt{Git} всегда работает внутри командной оболочки \texttt{bash} и пользуется для задания своего поведения некоторыми доступными в этой оболочке переменными среды.
+
+Описание наиболее полезных переменных среды можно найти в \cite[\strbook{451}]{chacon:2020}
+
+\subsection{Отладка}
+
+\texttt{Git} может выступать и как система слежения.
+
+Переменная \verb|GIT_TRACE| контролирует протоколирование действий, не поддающих ни в одну из заданных категорий
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ GIT_TRACE=true git lga
+\end{lstlisting}
+
+Переменная \verb|GIT_TRACE_PERFORMANCE| отвечает за регистрацию сведений о производительности. Выводимые данные показывают, сколько времени занимали те или иные действия
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ GIT_TRACE_PERFORMANCE=true git gc
+18:25:54.205230 trace.c:475             performance: 0.002114576 s: git command: git pack-refs --all --prune
+18:25:54.233231 trace.c:475             performance: 0.009720393 s: git command: git reflog expire --all
+18:25:54.278234 read-cache.c:2308       performance: 0.000061270 s:  read cache .git/index
+Enumerating objects: 220, done.
+Counting objects: 100% (220/220), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (87/87), done.
+Writing objects: 100% (220/220), done.
+Total 220 (delta 128), reused 220 (delta 128), pack-reused 0
+18:25:54.536249 trace.c:475             performance: 0.272991152 s: git command: git pack-objects --local --delta-base-offset .git/objects/pack/.tmp-23424-pack --keep-true-parents --honor-pack-keep --non-empty --all --reflog --indexed-objects --unpack-unreachable=2.weeks.ago
+18:25:54.576251 trace.c:475             performance: 0.326025363 s: git command: git repack -d -l -A --unpack-unreachable=2.weeks.ago
+18:25:54.615253 read-cache.c:2308       performance: 0.000111965 s:  read cache .git/index
+18:25:54.622254 trace.c:475             performance: 0.011453979 s: git command: git prune --expire 2.weeks.ago
+18:25:54.640255 trace.c:475             performance: 0.001036295 s: git command: git worktree prune --expire 3.months.ago
+18:25:54.658256 trace.c:475             performance: 0.000840357 s: git command: git rerere gc
+18:25:54.694258 trace.c:475             performance: 0.517178791 s: git command: 'C:\Program Files\Git\mingw64\bin\git.exe' gc
+\end{lstlisting}
+
+Переменная \verb|GIT_TRACE_SETUP| показывает информацию, собранную системой \texttt{Git} о репозитории и среде, с которой взаимодействует
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ GIT_TRACE_SETUP=true git status
+22:06:55.450824 trace.c:375             setup: git_dir: .git
+22:06:55.451824 trace.c:376             setup: git_common_dir: .git
+22:06:55.451824 trace.c:377             setup: worktree: E:/[WorkDirectory]/[LaTeX_project]/Cheat_sheet_Git
+22:06:55.451824 trace.c:378             setup: cwd: E:/[WorkDirectory]/[LaTeX_project]/Cheat_sheet_Git
+22:06:55.451824 trace.c:379             setup: prefix: (null)
+22:06:55.451824 chdir-notify.c:65       setup: chdir from 'E:/[WorkDirectory]/[LaTeX_project]/Cheat_sheet_Git' to 'E:/[WorkDirectory]/[LaTeX_project]/Cheat_sheet_Git'
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+    (use "git add <file>..." to update what will be committed)
+    (use "git restore <file>..." to discard changes in working directory)
+        modified:   cheat_sheet_git.pdf
+        modified:   cheat_sheet_git.tex
+        modified:   style_packages/podvoyskiy_article_extended.sty
+
+no changes added to commit (use "git add" and/or "git commit -a")
 \end{lstlisting}
 
 
