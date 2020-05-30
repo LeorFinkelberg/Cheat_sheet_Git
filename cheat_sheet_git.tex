@@ -132,6 +132,136 @@ git merge issue54
 
 Можно явно указать коммит, из которого следует брать версию файла, например, \texttt{git reset eb43bf}.
 
+\subsection{Команда \texttt{git fetch}}
+
+Команда \texttt{git fetch} извлекает данные из удаленного репозитория без слияния. Общий синтаксис команды \texttt{git fetch} выглядит следующим образом
+\begin{lstlisting}[
+style = cmd,
+numbers = none
+]
+git fetch [<опции>] [<имя_удаленного_репозитория> [<источник>:<цель>...]]
+\end{lstlisting}
+
+Здесь выражение \verb|<источник>:<цель>| -- \emph{спецификация ссылок}, где \verb|<источник>| -- шаблон для ссылок на сервере, а \verb|<цель>| -- место, куда эти ссылки будут записываться локально.
+
+Посмотреть спецификацию ссылок, которая используется в проекте, можно так
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+$ cat .git/config
+# выведет
+[core]
+    repositoryformatversion = 0
+    filemode = false
+    bare = false
+    ...
+    ignorecase = true
+[remote "origin"]
+    url = https://github.com/LeorFinkelberg/Cheat_sheet_bash.git
+    fetch = +refs/heads/*:refs/remotes/origin/*  # <--
+[branch "origin"]
+    remote = origin
+    merge = refs/heads/master
+\end{lstlisting}
+
+Строка, которая начинается с \texttt{fetch =}, обеспечивает проецирование имен в удаленном репозитории на имена в вашей локальной папке \texttt{.git}.
+
+По сути, она сообщает системе \texttt{Git}: <<Все, что в \emph{удаленном} репозитории находится по адресу \verb|refs/heads|, должно попасть в папку моего \emph{локального} репозитория \verb|refs/remotes/origin|>>
+
+Например, если требуется извлечь данные из \emph{удаленной} ветки \texttt{master} \emph{удаленного} репозитория с именем \texttt{origin} в \emph{локальную} ветку \texttt{mymaster}, то можно воспользоваться конструкцией
+\begin{lstlisting}[
+style = cmd,
+numbers = none
+]
+git fetch origin master:refs/remotes/origin/mymaster
+\end{lstlisting}
+
+Можно задать набор спецификаций. Извлечь данные из нескольких веток посредством командой строки можно так
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git fetch origin master:refs/remotes/origin/mymaster \
+                 topic:refs/remotes/origin/topic
+\end{lstlisting}
+
+Посмотреть коммиты новой ветки можно, указав путь 
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git log --oneline refs/remotes/origin/mymaster
+\end{lstlisting}
+
+Задать множественную спецификацию ссылок для извлечения данных можно и в конфигурационном файле. Чтобы все время получать обновления из веток \texttt{master} и \texttt{experiment}, добавьте следующие строки в конфигурационный файл
+\begin{lstlisting}[
+style = bash,
+title = {\sffamily .git/config},
+numbers = none
+]
+...
+[remote "origin"]
+    url = https://github.com/LeorFinkelberg/Cheat_sheet_bash.git
+    fetch = +refs/heads/master:refs/remotes/origin/master
+    fetch = +refs/head/experiment:refs/remotes/origin/experiment
+\end{lstlisting}
+
+Если группа тестирования работает в некоторых ветках, а вам нужно получить данные из ветки \texttt{master} и из всех веток, используемой этой группой, добавьте в раздел конфигурации следующие строки
+\begin{lstlisting}[
+style = bash,
+title = {\sffamily .git/config},
+numbers = none
+]
+...
+[remote "origin"]
+    url = https://github.com/LeorFinkelberg/Cheat_sheet_bash.git
+    fetch = +refs/heads/master:refs/remotes/origin/master
+    fetch = +refs/head/qa/*:refs/remotes/origin/qa/*
+\end{lstlisting}
+
+\subsection{Команда \texttt{git push}}
+
+Здорово, что извлекать данные можно с помощью ссылок, разделенных по пространствам имен, но сначала нужно дать группе тестирования возможность отправлять свои ветки в пространство имен \verb|qa/|. Эта задача решается через спецификации ссылок для команды \texttt{push}.
+
+Вот как отправить ветку \texttt{master} (\emph{локальную}), принадлежащую группе тестирования, в ветку \verb|qa/master| на \emph{удаленном} сервере
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git push origin master:refs/heads/qa/master
+\end{lstlisting}
+
+Если нужно, чтобы система \texttt{Git} автоматически делала это при каждом запуске команды \texttt{git push origin}, добавьте в конфигурационный файл значения переменной \texttt{push}
+\begin{lstlisting}[
+style = bash,
+title = {\sffamily .git/config},
+numbers = none
+]
+...
+[remote "origin"]
+    url = https://github.com/LeorFinkelberg/Cheat_sheet_bash.git
+    fetch = +refs/heads/master:refs/remotes/origin/master
+    push = +refs/heads/master:refs/heads/qa/master
+\end{lstlisting}
+
+В результате команда \texttt{git push origin} по умолчанию будет отправлять \emph{локальную} ветку \texttt{master} в ветку \verb|qa/master| на \emph{удаленном} сервере.
+
+\subsection{Ликвидация ссылок}
+
+Спецификацию ссылок, кроме всего прочего, можно использовать для удаления ссылок с сервера. Это может выглядеть так
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git push origin :topic
+\end{lstlisting}
+
+Так как спецификация ссылок задается в формате \verb|<источнк>:<цель>|, опустив часть \verb|<источник>|, мы по сути, скажем, что тематическую ветку на удаленном сервере следует сделать пустой, и это приведет к ее ликвидации.
+
+
+
+
 \section{Конфликты слияния}
 
 \subsection{Создание коммитов слияния}
@@ -1178,6 +1308,16 @@ git branch -vv
  ...
 \end{lstlisting} 
 
+\subsection{Работа со ссылками}
+
+Вывести список всех ссылок локального репозитория
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git show-ref
+\end{lstlisting}
+
 
 \subsection{Отправка данных на удаленный репозиторий}
 
@@ -2043,10 +2183,90 @@ git filter-branch --commit-filter '
 
 Эта команда по очереди переписывает все коммиты, вставляя туда ваш новый адрес электронной почты. Так как коммиты содержат значения SHA-1 своих предков, эта команда поменяет значения SHA \emph{всех} коммитов в истории, а не только тех, в которых был обнаружен указанный вами электронный адрес.
 
+\subsection{Спецификация ссылок}
 
+Рассмотрим более сложный случай проецирования удаленных веток на локальные
+\begin{lstlisting}[
+style = cmd,
+numbers = none
+]
+git remote add origin https://github.com/LeorFinkelberg/Cheat_sheet_Git.git
+\end{lstlisting}
 
+Эта команда добавляет в файл \verb|.git/config| раздел, задающий имя удаленного репозитория (\texttt{origin}), его URL-адрес и \emph{спецификацию ссылок} для получения оттуда данных
+\begin{lstlisting}[
+numbers = none
+]
+[remote "origin"]
+    url = https://github.com/LeorFinkelberg/Cheat_sheet_Git.git
+    fetch = +refs/heads/*:refs/remotes/origin/*
+\end{lstlisting}
 
+Эта спецификация имеет следующий формат: по желанию символ \texttt{+}, за которым следует \verb|<источник>:<цель>|, где \verb|<источник>| -- шаблон для ссылок на сервере, а \verb|<цель>| -- место, куда эти ссылки будут записываться локально. Символ \texttt{+} заставляет \texttt{Git} обновлять ссылки, даже если речь идет не о перемотке.
 
+К слову, значение переменной \texttt{fetch} можно узнать следующим образом
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config remote.origin.fetch
+\end{lstlisting}
+
+В случае настроек по умолчанию, которые автоматически используются командой \verb|git remote add|, \texttt{Git} извлекает все ссылки из папки \verb|refs/heads/| \emph{на сервере} и записывает их в \emph{локальную папку} \verb|refs/remotes/origin/|.
+
+Если на сервере есть ветка \texttt{master}, локальный доступ к ее журналу можно получить так
+\begin{lstlisting}[
+style = cmd,
+numbers = none
+]
+git log origin/master
+git log remotes/origin/master
+git log refs/remotes/origin/master
+\end{lstlisting}
+
+Все эти команды дают один и тот же результат, так как \texttt{Git} разворачивает каждую из них до состояния \verb|refs/remotes/origin/master|.
+
+Если нужно, чтобы с удаленного сервера при каждом обращении к нему извлекалось содержимое только ветки \texttt{master}, а не всех подряд, измените соответствующую строку в конфигурационном файле
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+fetch = +refs/heads/master:refs/remotes/origin/master
+\end{lstlisting}
+
+{\color{blue} Эта \emph{спецификация ссылки}, предлагаемой по умолчанию, будет использоваться командой\\\texttt{git fetch} при обращении к данному удаленному репозиторию.}
+
+Если же вы хотите выполнить некое однократное действие, указать спецификацию можно в командной строке. Чтобы извлечь данные из \emph{удаленной} ветки \texttt{master} и поместить их в \emph{локальную} ветку \verb|origin/mymaster|, напишите
+\begin{lstlisting}[
+style = cmd,
+numbers = none
+]
+git fetch origin master:refs/remotes/origin/mymaster
+\end{lstlisting}
+
+\subsection{Информация о файлах}
+
+Вывести информацию о файлах и директориях, попавших в заданное дерево объекта, с указанием режима доступа, типа и контрольной суммы
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git ls-tree HEAD
+# выведет
+100644 blob 9c8ab46e95aacdaed92b2dbcf6bf69965e115dd1    .gitignore
+100644 blob 93ffc9c04dd7b32cdfb14b0db7af3fcf165917a2    README.md
+100644 blob 411b170c34aeed793ae7984ccd2f657802a43300    cheat_sheet_git.pdf
+100644 blob 9ffd86fa5acc6be4beed24f7b2c0508c1e222edf    cheat_sheet_git.tex
+040000 tree 417bb89bd6f65dfa12a8a9d35343bf8c6c223ad0    style_packages
+\end{lstlisting}
+
+Вывести размер файла по его контрольной сумме
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git cat-file -s 411b170c34aeed793ae7984ccd2f657802a43300 # 737387
+\end{lstlisting}
 
 
 
