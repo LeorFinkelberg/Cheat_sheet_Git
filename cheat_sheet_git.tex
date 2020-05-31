@@ -220,6 +220,7 @@ numbers = none
     fetch = +refs/head/qa/*:refs/remotes/origin/qa/*
 \end{lstlisting}
 
+
 \subsection{Команда \texttt{git push}}
 
 Здорово, что извлекать данные можно с помощью ссылок, разделенных по пространствам имен, но сначала нужно дать группе тестирования возможность отправлять свои ветки в пространство имен \verb|qa/|. Эта задача решается через спецификации ссылок для команды \texttt{push}.
@@ -246,6 +247,8 @@ numbers = none
 \end{lstlisting}
 
 В результате команда \texttt{git push origin} по умолчанию будет отправлять \emph{локальную} ветку \texttt{master} в ветку \verb|qa/master| на \emph{удаленном} сервере.
+
+По сути мы просто копируем файл \texttt{master} из \verb|refs/heads/|, который содержит хеш-код последнего коммита текущей ветки, в \verb|refs/heads/qa/|.
 
 \subsection{Ликвидация ссылок}
 
