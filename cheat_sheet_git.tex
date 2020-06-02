@@ -61,8 +61,160 @@ export PS1='\[\e[36m\][\u]\[\e[m\]:\[\e[33;1m\]\w$(__git_ps1 " (%s)")\[\e[m\]\$ 
 
 Запись \verb|\u| означает имя пользователя, \verb|\w| как и раньше -- текущую директорию, а символ \verb|\$| означает <<сырой>> символ доллара как приглашение командной оболочки.
 
+\section{Настройка системы \texttt{Git}}
+
+Первым делом конфигурационные параметры \texttt{Git} берет из файла \texttt{/etc/gitconfig}, содержащего значения для всех пользователей системы и всех репозиториев этих пользователей. Параметр \verb|--system|, добавленный к команде \texttt{git config}, инициализирует чтение именно из этого файла и запись в него.
+
+Затем \texttt{Git} смотрит файл \verb|~/.gitconfig| (или \verb|~/.config/git/config|), привязанный к конкретному пользователю. Чтение и запись этого файла активизирует передача параметра \verb|--global|.
+
+Последним местом поиска конфигурационных параметров является файл в папке используемого в текущий момент репозитория (\verb|.git/config|). Находящиеся в этом файле значения связаны с конкретным репозиторием.
+
+Итак
+\begin{itemize}
+	\item системный уровень: \verb|/etc/gitconfig| (флаг \verb|--system|),
+	
+	\item глобальный уровень: \verb|~/.gitconfig| (флаг \verb|--global|),
+	
+	\item локальный уровень (уровень репозитория): \verb|.git/config| (флаг \verb|--local|).
+\end{itemize}
+
+Значения с каждого уровня переопределяют значения, заданные на предыдущем уровне. Например, значения в файле \verb|.git/config| переписывают значения в файле \verb|/etc/gitconfig|, т.е. настройки репозитория имеют приоритет выше, чем настройки для всех пользователей и всех их репозиториев.
+
+Вывести список всех настроек на системном, глобальном или локальном уровнях можно так
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --system --list
+git config --global --list
+git config --local --list
+\end{lstlisting}
+
+\subsection{Параметр core.excludesfile}
+
+Чтобы система \texttt{Git} не рассматривала определенные файлы как неотслеживаемые и не пыталась индексировать их при выполнении команды \texttt{git add}, следует создать шаблон в файле \texttt{.gitignore}. Но иногда возникает необходимость сделать так, чтобы система игнорировала определенные файлы для всех ваших репозиториев. Если вы работаете на компьютере с операционной системой \texttt{Mac OS X}, то вам знакомы файлы \texttt{.DS\_Store} или, например, файлы, которые заканчиваются на \verb|~|.
+
+Параметр \texttt{core.exludesfile} позволяет записать файл \texttt{.gitignore}, действующий на глобальном уровне. Достаточно создать файл \verb|~/.gitignore_global| в вот таким содержимым
+\begin{lstlisting}[
+style = bash,
+title = {\sffamily \~{}./gitignore\_global},
+numbers = none
+]
+*~
+.DS_Store
+\end{lstlisting}
+
+Теперь можно передать пусть до этого файла параметру \texttt{core.excludesfile}
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --global core.excludesfile ~/.gitignore_global
+\end{lstlisting}
+
+\subsection{Внешние инструменты для слияния и индикации изменений}
+
+Конфликты слияния можно решать, например, с помощью специальной программы Helix Visual Merge Tool (P4Merge) \url{https://www.perforce.com/downloads/visual-merge-tool}.
+
+Создаем сценарий \texttt{extMerge.sh} для процедуры слияния, который будет вызывать бинарный файл \texttt{p4merge} со всеми переданными аргументами
+\begin{lstlisting}[
+style = bash,
+title = {\sffamily \~{}/bin/extMerge.sh},
+numbers = none
+]
+#!/bin/bash
+
+"/c/Program Files (x86)/Perforce/p4merge" "$@"
+\end{lstlisting}
+
+Оболочка для команды \texttt{diff} проверяет наличие всех семи аргументов, которые ей должны передать, и отправляет два из них вашему сценарию слияния. По умолчанию \texttt{Git} передает команде \texttt{diff} следующие аргументы
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+путь старый-файл старый-хеш старые-права новый-файл новый-хеш новые-права
+\end{lstlisting}
+
+Так как нам требуются только второй и пятый аргументы, то есть имена старого и нового файлов, воспользуемся сценарием-оболочкой, который передаст только нужные сведения
+\begin{lstlisting}[
+style = cmd,
+title = {\sffamily \~{}/bin/extDiff.sh},
+numbers = none
+]
+#!/bin/bash
+
+[[ $# -eq 7 ]] && ~/bin/extMerge.sh "$2" 
+\end{lstlisting}
+
+Заодно следует убедится, что наши инструменты представляют собой исполняемые файлы
+\begin{lstlisting}[
+numbers = none
+]
+chmod +x ~/bin/extMerge.sh
+chmod +x ~/bin/extDiff.sh
+\end{lstlisting}
+
+Тепреь можно сделать так, чтобы конфигурационный файл вызывал наши инструменты разрешения конфликтов слияния и индикации добавленных изменений. Для этого потребуется несколько настроек:
+\begin{itemize}
+	\item параметр \verb|merge.tool| укажет \texttt{Git}, какую стратегию следует использовать,
+	
+	\item параметр \verb|mergetool.*.cmd| определит способ запуска команды,
+	
+	\item параметр \verb|mergetool.trustExitCode| даст \texttt{Git} понять, указывает код завершения программы на успешное разрешение конфликта или нет, 
+	
+	\item параметр \texttt{diff.external} объяснит \texttt{Git}, какой командой  следует воспользоваться для получения изменений.
+\end{itemize}
+
+Отредактируем файл \verb|~/.gitconfig|
+\begin{lstlisting}[
+style = bash,
+title = {\sffamily \~{}/.gitconfig},
+numbers = none
+]
+...
+[merge]
+    tool = extMerge.sh
+[mergetool "extMerge.sh"]
+    cmd = extMerge.sh "$BASE" "$LOCAL" "$REMOTE" "$MERGED"
+    trustExitCode = false
+[diff]
+    external = extDiff.sh
+\end{lstlisting}
+
+После этого можно запустить команду \texttt{diff} 
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git diff HEAD~1 HEAD~2
+\end{lstlisting}
+
+Если попытка слияния двух веток оканчивается конфликтом, запустите команду \texttt{git mergetool}. В результате откроется программа P4Merge, в которой можно будет разрешить конфликт.
+
+В случае проблем с кодировкой нужно просто указать правильную \textit{File}~\textrightarrow~\textit{Character Encoding}.
+
+
+\subsection{Форматирование и пробелы}
+
+Если вы работатет в операционной системе \texttt{Windows}, а ваше коллеги нет, проблемы, связанные с символами конца строки, неизбежны. Дело в том, что в Windows-файлах для новых строк используется как символ перевода строки, так и символ возврата каретки, в то время как в Unix-подобных системах (MacOS X, Linux) -- только символ перевода строки.
+
+Для того чтобы \texttt{Git} автоматически конвертировал окончания строк типа CRLF в тип LF в момент индексирования файла и производя обратное преобразование при выгрузке кода из репозитория в файловую систему, нужно задать параметр \texttt{core.autocrlf}
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --global core.autocrlf true
+\end{lstlisting}
+
+
+
+
 
 \section{Фундаментальные концепции}
+
+\subsection{Слежение}
+
+При извлечении данных с удаленного репозитория (git fetch/pull) изменения будут объединяться с соответствующими ветками: \texttt{master} с \texttt{origin/master}, \texttt{feature} с \texttt{origin/feature}. Ветки объединяются разумеется не по имени, а за счет \emph{upstream tracking}. 
 
 \subsection{Слияние}
 
@@ -88,6 +240,8 @@ git checkout experiment
 git rebase master
 \end{lstlisting}
 
+Набор коммитов из ветки, которая перемещается, устанавливается на самый верх ветки, в которую выполняется перемещение.
+
 \subsection{Общая схема работы в небольшой команде}
 
 Общая схема работы в небольшой команде:
@@ -106,6 +260,100 @@ git merge issue54
 	
 	\item После чего содержимое ветки \texttt{master} можно отправить на сервер \texttt{git push origin master}.
 \end{itemize}
+
+\subsection{Типовые сценарии работы над проектом}
+
+Можно выделить следующие типовые сценарии:
+\begin{itemize}
+	\item Выпус релизов (release),
+	
+	\item Исправление ошибок (bug fixing),
+	
+	\item Срочные исправления (hot fix),
+	
+	\item Разработка нескольких фич одновременно (features development),
+	
+	\item Выпуск определенных фич или выпуск по готовности.
+\end{itemize}
+
+В ветке \texttt{master} обычно хранится последняя выпущенная версия и она обновляется только от релиза к релизу. Не будет лишним сделать и tag с указанием версии, т.к. ветка может обновится.
+
+Понадобиться еще одна ветка для основной разработки, та самая в которую будет все сливаться и которая будет продолжением ветки \texttt{master}. Ее будут тестировать и по готовности, во время релиза, все изменения будут сливать в \texttt{master}. Назовем ее \texttt{dev}.
+
+Если требуется выпустить ветку \texttt{hotfix}, можно вернуться к состоянию \texttt{master} или к определенному тегу, создать там ветку \texttt{hotfix/version} и начать работу по исправлению критических изменений. Это не затрагивает проект и текущую разработку.
+
+Для разработки фич удобно будет использовать ветки <<feature/feature\_name>>. Начинать ветку лучше с самых последних изменений и периодически подтягивать изменения из \texttt{dev} к себе. Чтобы сохранить историю простой и линейной, ветку лучше перестраивать на \texttt{dev} (\texttt{git rebase dev}).
+
+Исправление мелких багов может идти напрямую в \texttt{dev}. Для мелких багов и изменений рекомендуется создавать локально временные ветки. Их не надо отправлять в глобальный репозиторий. Это только ваши временные ветки.
+
+Схема исправления багов:
+\begin{itemize}
+	\item Исправление в ветке \texttt{dev} или отдельной,
+	
+	\item Получение изменений из \texttt{origin} (\texttt{git fetch origin dev}),
+	
+	\item Перестройка изменений на последнюю версию (\texttt{git rebase -i origin/dev}),
+	
+	\item Передача изменений в \texttt{origin} (\texttt{git push origin dev}).
+\end{itemize}
+
+Пример работы с фичами (это может быть большой баг, над которым работают несколько человек).
+
+\subsubsection{Коротко-живущие ветки}
+
+Обычно ветка создается с самого последнего варианта кодовой базы. В нашем случае с ветки \texttt{dev}
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+(dev)$ git fetch origin dev  # извлекаем изменения
+\end{lstlisting}
+
+Создаем ветку \texttt{feature/feature1} на базе ветки \texttt{origin/dev}, но не связываем их
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+(dev)$ git branch --no-track feature/feature1 origin/dev
+\end{lstlisting}
+
+Отправляем новую ветку в общий репозиторий, чтобы она была доступна другим
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+(dev)$ git push origin feature/feature1
+\end{lstlisting}
+
+Теперь работу над \texttt{feature1} можно вести в ветке \texttt{feature/feature1}. Спустя некоторое время в нашей ветке будет много коммитов, и работа над \texttt{feature1} будет закончена. При этом в \texttt{dev} тоже будет много изменений. И наша задача отдать наши изменения в \texttt{dev}.
+
+Когда работа закончена, один разработчик должен предупредить другого, что он собирается <<слить>> изменения в \texttt{dev} и, например, удалить ветку
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+(feature/feature1)$ git fetch origin  # обновиться на всякий случай
+(feature/feature1)$ git rebase -i origin/dev  # перестроить ветку feature/feature1 на ветке origin/dev. Нужно писать origin/dev, а не dev потому что после обновления ветка ушла вперед, а локальная ветка осталась на месте
+(feature/feature1)$ git checkout dev
+(dev)$ git merge feature/feature1  # сливаем в ветку dev
+\end{lstlisting}
+
+Делаем \texttt{push} и убираем ненужное
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+(dev)$ git push origin dev
+(dev)$ git push origin :feature/feature1  # удаляем удаленную ветку
+(dev)$ git branch -d feature/feature1  # удаляем локальную ветку
+\end{lstlisting}
+
+\subsubsection{Долго-живущие ветки}
+
+Сложность долго-живущих веток в их поддержке и актуализации. Если делать все как описано выше то, вероятно быть беде: время идет, основная ветка меняется, проект меняется, а ваша фича основана на очень старом варианте. Когда настанет время выпустить фичу, она будет настолько выбиваться из проекта, что объединение может быть очень тяжелым или, даже, невозможным.
+
+Именно поэтому, ветку нужно обновлять.
+
 
 \subsection{Команда \texttt{git reset}}
 
@@ -204,7 +452,7 @@ numbers = none
 [remote "origin"]
     url = https://github.com/LeorFinkelberg/Cheat_sheet_bash.git
     fetch = +refs/heads/master:refs/remotes/origin/master
-    fetch = +refs/head/experiment:refs/remotes/origin/experiment
+    fetch = +refs/heads/experiment:refs/remotes/origin/experiment
 \end{lstlisting}
 
 Если группа тестирования работает в некоторых ветках, а вам нужно получить данные из ветки \texttt{master} и из всех веток, используемой этой группой, добавьте в раздел конфигурации следующие строки
@@ -217,7 +465,7 @@ numbers = none
 [remote "origin"]
     url = https://github.com/LeorFinkelberg/Cheat_sheet_bash.git
     fetch = +refs/heads/master:refs/remotes/origin/master
-    fetch = +refs/head/qa/*:refs/remotes/origin/qa/*
+    fetch = +refs/heads/qa/*:refs/remotes/origin/qa/*
 \end{lstlisting}
 
 
@@ -262,6 +510,21 @@ git push origin :topic
 
 Так как спецификация ссылок задается в формате \verb|<источнк>:<цель>|, опустив часть \verb|<источник>|, мы по сути, скажем, что тематическую ветку на удаленном сервере следует сделать пустой, и это приведет к ее ликвидации.
 
+Удалить удаленную ветку после перемещения
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git push origin :feature/feature1
+\end{lstlisting}
+
+И удалить эту ветку локально
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git branch -d feature/feature1
+\end{lstlisting}
 
 
 
@@ -967,6 +1230,14 @@ numbers = none
 git log --no-merges issue54..origin/master
 \end{lstlisting}
 
+Провести слияние веток только с помощью перемотки вперед\footnote{Перемотка вперед возможна, если на графе коммитов существует прямой путь от последнего коммита более короткой ветки до последнего коммита более длинной ветки} (fast-forward)
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git merge --ff-only branch_name
+\end{lstlisting}
+
 Вывести информацию о том чем ветка \texttt{origin/master} будет отличаться от ветки \texttt{master}\footnote{Этот прием бывает полезен тогда, когда требуется предварительно посмотреть данные, которые будут слиты в ветку} (каких коммитов нет в ветке \texttt{origin/master})
 
 \begin{lstlisting}[
@@ -1363,6 +1634,15 @@ language = cmd,
 numbers = none
 ]
 git rebase --onto master server client
+\end{lstlisting}
+
+Общий синтаксис команды
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git rebase --onto <на_какую_ветку_перестроить>
+                      <с_какого_коммита_или_ветки> <по_какой_коммит_или_ветку>
 \end{lstlisting}
 
 Переместить изменения из ветки \texttt{server} в ветку \texttt{master}, вне зависимости от того, в какой ветке вы находитесь, позволяет команда \texttt{git rebase [main\_branch] [topic\_branch]}. Эта команда переключает на тематическую ветку (в данном случае -- на ветку \texttt{server}) и воспроизводит ее содержимое в основной ветке (\texttt{master})
@@ -2237,6 +2517,14 @@ numbers = none
 fetch = +refs/heads/master:refs/remotes/origin/master
 \end{lstlisting}
 
+Посмотреть настройки конфигурационного файла на уровне репозитория, связанные с извлечением данных, можно так
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --local --list | grep 'fetch'
+\end{lstlisting}
+
 {\color{blue} Эта \emph{спецификация ссылки}, предлагаемой по умолчанию, будет использоваться командой\\\texttt{git fetch} при обращении к данному удаленному репозиторию.}
 
 Если же вы хотите выполнить некое однократное действие, указать спецификацию можно в командной строке. Чтобы извлечь данные из \emph{удаленной} ветки \texttt{master} и поместить их в \emph{локальную} ветку \verb|origin/mymaster|, напишите
@@ -2269,6 +2557,16 @@ style = bash,
 numbers = none
 ]
 git cat-file -s 411b170c34aeed793ae7984ccd2f657802a43300 # 737387
+\end{lstlisting}
+
+\subsection{Перемещения}
+
+Перестроить текущую ветку \texttt{dev} на локальной ветке \texttt{origin/dev} в интерактивном режиме
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+(dev)$ git rebase -i origin/dev
 \end{lstlisting}
 
 
