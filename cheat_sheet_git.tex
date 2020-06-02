@@ -948,6 +948,35 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 \section{Конструкции \texttt{Git}}
 
+\subsection{Создать новый репозиторий}
+
+Создать новый репозиторий в текущей директории
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git init
+\end{lstlisting}
+
+Создать новый репозиторий в указанной директории
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git init path_to_dir
+\end{lstlisting}
+
+\subsection{Клонирование репозитория}
+
+Клонировать удаленный репозиторий в директорию с именем \texttt{folder\_name}
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git clone https://github.com/.../git-commands.git folder_name
+\end{lstlisting}
+
+
 \subsection{Настройка Git}
 
 Задать глобальные настройки можно следующим образом
@@ -1285,6 +1314,82 @@ numbers = none
 git reset HEAD file_name.py
 \end{lstlisting}
 
+\subsection{Отмена коммитов и перемещение по истории}
+
+\remark{%
+Все коммиты, которые были отправлены в удаленный репозиторий, должны отменяться ТОЛЬКО новыми коммитами (\texttt{git revert}), чтобы избежать проблем с историей разработки у других разработчиков
+}
+
+Создать новый коммит, отменяющий изменения последнего коммита без запуска редактора
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git revert HEAD --no-edit
+\end{lstlisting}
+
+Создать новый коммит, отменяющий изменения, внесенные коммитом с указанным хеш-кодом
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git revert b9533bb --no-edit
+\end{lstlisting}
+
+Все команды, приведенные ниже можно выполнять ТОЛЬКО, если коммиты еще \emph{не были отправлены} в удаленный репозиторий
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git commit --amend -m 'New commit-message' # создать новый коммит на основе обновленной области индексирования и задать новое сообщение фиксации
+git reset --hard @~  # передвинуть ветку на предыдущий коммит, обновить область индексирования и рабочую папку; эквивалентно git reset --hard HEAD~
+git reset --hard 75e2d51  # то же самое, но на коммит с указанным хеш-кодом
+\end{lstlisting}
+
+\subsection{Восстановление изменений}
+
+Восстановить в рабочей директории указанный файл на момент указанного коммита
+\begin{lstlisting}[
+numbers = none
+]
+git checkout 34534534 index.html
+\end{lstlisting}
+
+Скопировать на текущую ветку изменения из указанного коммита и \emph{зафиксировать} эти изменения
+\begin{lstlisting}[
+numbers = none
+]
+git cherry-pick 454535
+\end{lstlisting}
+
+Скопировать на текущую ветку изменения из ветки \texttt{master} (2 последних коммита)
+\begin{lstlisting}[
+numbers = none
+]
+git cherry-pick master~2..master
+\end{lstlisting}
+
+Скопировать на текущую ветку изменения из указанного коммита, но \emph{не фиксировать}
+\begin{lstlisting}[
+numbers = none
+]
+git cherry-pick -n 3453455
+\end{lstlisting}
+
+Прервать конфликтный перенос коммитов
+\begin{lstlisting}[
+numbers = none
+]
+git cherry-pick --abort
+\end{lstlisting}
+
+Продолжить конфликтный перенос коммитов
+\begin{lstlisting}[
+numbers = none
+]
+git cherry-pick --continue
+\end{lstlisting}
+
 
 \subsection{Работа с удаленными репозиториями}
 
@@ -1424,6 +1529,54 @@ language = cmd,
 numbers = none
 ]
 git branch
+\end{lstlisting}
+
+Показать все имеющиеся ветки (в том числе на удаленных репозиториях)
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch -a
+\end{lstlisting}
+
+Показать список веток и последние коммиты в каждой из них
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch -vv
+\end{lstlisting}
+
+Переименовать локально ветку \texttt{old\_branch\_name} в \texttt{new\_branch\_name}
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch -m old_branch_name new_branch_name
+\end{lstlisting}
+
+Переименовать локально текущую ветку в \texttt{new\_branch\_name}
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch -m new_branch_name
+\end{lstlisting}
+
+Переименовать ветку в удаленном репозитории
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git push origin :old_branch_name new_branch_name
+\end{lstlisting}
+
+Завершить процесс переименования
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git branch --unset-upstream
 \end{lstlisting}
 
 
@@ -1724,6 +1877,30 @@ language = cmd,
 numbers = none
 ]
 git show HEAD^
+\end{lstlisting}
+
+Вывести информацию по коммиту указанного файла на момент предыдущего от HEAD коммита
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git show @~:file_name.txt
+\end{lstlisting}
+
+Показать самый последний коммит, в описании которого встречает указанная строка
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git show -s :/'cherry-pick'
+\end{lstlisting}
+
+Для просмотра всех предков указанного коммита следует воспользоваться конструкцией
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git log j345345^@
 \end{lstlisting}
 
 
@@ -2569,6 +2746,22 @@ numbers = none
 (dev)$ git rebase -i origin/dev
 \end{lstlisting}
 
+\section{Коллекция сценариев}
+
+\subsection{Откат к состоянию до слияния}
+
+Была ветка \texttt{fix}, в которой исправляли баг. Исправили, слили изменения из \texttt{fix} в \texttt{master}, но тут выяснилось, что это исправление ломает приложение. Нужно откатить ветку \texttt{master} к состоянию до слияния
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+# находимся в ветке fix, баг "исправлен"
+git checkout master
+git merge fix
+# видим проблему, приложение сломалось
+git checkout fix
+git branch -f master ORIG_HEAD
+\end{lstlisting}
 
 
 % Источники в "Газовой промышленности" нумеруются по мере упоминания 
