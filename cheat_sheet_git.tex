@@ -206,7 +206,31 @@ numbers = none
 git config --global core.autocrlf true
 \end{lstlisting}
 
+\subsection{Псевдонимы}
 
+Пример создания псевдонима для команды \texttt{status}
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --global alias.st status
+\end{lstlisting}
+
+Теперь этот псевдоним можно в командной оболочке использовать
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git st -sb
+\end{lstlisting}
+
+Можно создавать псевдонимы и для более сложных команд
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --global alias.last 'log -1 HEAD'
+\end{lstlisting}
 
 
 
