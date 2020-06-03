@@ -1929,6 +1929,15 @@ numbers = none
 git show -s :/'cherry-pick'
 \end{lstlisting}
 
+Посмотреть как выглядит один и тот же файл на разных ветках можно так
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+$ git show master:file_name.py
+$ git show alterbranch:file_name.py
+\end{lstlisting}
+
 Для просмотра всех предков указанного коммита следует воспользоваться конструкцией
 \begin{lstlisting}[
 style = bash,
