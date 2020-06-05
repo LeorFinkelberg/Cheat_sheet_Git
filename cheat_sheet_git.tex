@@ -2180,6 +2180,21 @@ git clean -d -n -x
 \end{lstlisting}
 
 
+\subsection{Подготовка устойчивой версии}
+
+Если требуется создать архив последнего состояния кода для тех пользователей, у которых отсутствует система Git, то это можно сделать командой \texttt{git archive}
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+# tarball-архив
+$ git archive master --prefix='project/' | gzip > $(git describe master).tar.gz
+# zip-архив
+$ git archive master --prefix='project/' --format=zip > $(git describe master).zip
+\end{lstlisting}
+
+
+
 \subsection{Подписи с помощью GPG}
 
 \subsubsection{Общие сведения}
@@ -2806,7 +2821,7 @@ git cat-file -s 411b170c34aeed793ae7984ccd2f657802a43300 # 737387
 
 \subsection{Перемещения}
 
-Перестроить текущую ветку \texttt{dev} на локальной ветке \texttt{origin/dev} в интерактивном режиме
+Перестроить текущую ветку \texttt{dev} на ветке \texttt{origin/dev} в интерактивном режиме
 \begin{lstlisting}[
 style = bash,
 numbers = none
