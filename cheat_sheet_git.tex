@@ -2422,6 +2422,37 @@ git config --global user.signingkey 0A46826A
 
 Теперь \texttt{Git} будет использовать этот ключ по умолчанию для подписи тегов и коммитов.
 
+Вывести информацию по GPG-ключам
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+gpg --list-keys
+# выведет
+/c/Users/ADM/.gnupg/pubring.kbx
+-------------------------------
+pub   rsa2048 2020-06-06 [SC] [expires: 2022-06-06]
+6A2B86D3D3BD58B4661982FAEEDC6C3662F65FD8
+uid           [ultimate] Leor Finkelberg <leor.finkelberg@yandex.ru>
+sub   rsa2048 2020-06-06 [E] [expires: 2022-06-06]
+\end{lstlisting}
+
+Заставить Git использовать для подписи закрытый ключ можно так
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --global user.signingkey 6A2B86D3D3BD58B4661982FAEEDC6C3662F65FD8
+\end{lstlisting}
+
+Вывести информацию по параметру \texttt{signingkey}
+\begin{lstlisting}[
+style = bash,
+numbers = none	
+]
+git config --global --list | grep sign
+\end{lstlisting}
+
 \subsubsection{Подписи коммитов}
 
 Чтобы подписать отдельный коммит, следует
