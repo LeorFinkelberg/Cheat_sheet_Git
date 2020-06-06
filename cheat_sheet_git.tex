@@ -1765,6 +1765,22 @@ numbers = none
 git diff origin/master..master
 \end{lstlisting}
 
+Вывести информацию по различиям файлов в разных коммитах
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git diff HEAD:file_name.txt HEAD~:file_name.txt
+\end{lstlisting}
+
+Вывести информацию по непроиндексированным изменениям в конкретном файле
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git diff file_name.txt
+\end{lstlisting}
+
 Для обращения к существующей ветке можно использовать краткую форму \texttt{@\{u\}}. К примеру, если мы следим из ветки \texttt{master} за веткой \texttt{origin/master}, то для краткости можно писать так
 
 \begin{lstlisting}[
