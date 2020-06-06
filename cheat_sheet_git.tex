@@ -188,6 +188,14 @@ numbers = none
 ]
 git diff HEAD~1 HEAD~2
 \end{lstlisting}
+или так 
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+# git diff было стало
+git diff HEAD~1:file_name.txt HEAD~2:file_name.txt
+\end{lstlisting}
 
 Если попытка слияния двух веток оканчивается конфликтом, запустите команду \texttt{git mergetool}. В результате откроется программа P4Merge, в которой можно будет разрешить конфликт.
 
