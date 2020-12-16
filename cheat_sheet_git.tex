@@ -137,7 +137,7 @@ numbers = none
 
 Так как нам требуются только второй и пятый аргументы, то есть имена старого и нового файлов, воспользуемся сценарием-оболочкой, который передаст только нужные сведения
 \begin{lstlisting}[
-style = cmd,
+style = bash,
 title = {\sffamily \~{}/bin/extDiff.sh},
 numbers = none
 ]
@@ -451,7 +451,7 @@ numbers = none
 
 Команда \texttt{git fetch} извлекает данные из удаленного репозитория без слияния. Общий синтаксис команды \texttt{git fetch} выглядит следующим образом
 \begin{lstlisting}[
-style = cmd,
+style = bash,
 numbers = none
 ]
 git fetch [<опции>] [<имя_удаленного_репозитория> [<источник>:<цель>...]]
@@ -486,7 +486,7 @@ $ cat .git/config
 
 Например, если требуется извлечь данные из \emph{удаленной} ветки \texttt{master} \emph{удаленного} репозитория с именем \texttt{origin} в \emph{локальную} ветку \texttt{mymaster}, то можно воспользоваться конструкцией
 \begin{lstlisting}[
-style = cmd,
+style = bash,
 numbers = none
 ]
 git fetch origin master:refs/remotes/origin/mymaster
@@ -2542,13 +2542,16 @@ numbers = none
 git grep --break --heading 'section'
 \end{lstlisting}
 
-Чтобы увидеть историю функции или строки кода в кодовой базе следует исопльзовать конструкцию
+
+
+Чтобы увидеть историю изменения функции или строки кода в кодовой базе следует исопльзовать конструкцию
 
 \begin{lstlisting}[
-language = cmd,
+style = bash,
 numbers = none
 ]
-git log -L :commit:cheat_sheet_git.tex
+git log -L :somthing_string:cheat_sheet_git.tex  # какая-то строка
+git log -L :E_compute:sou.py  # имя функции
 \end{lstlisting}
 
 \subsection{Поиск в Git-журнале}
@@ -2558,7 +2561,8 @@ git log -L :commit:cheat_sheet_git.tex
 style = bash,
 numbers = none
 ]
-git log -SZLIB_BUF_MAX --oneline
+git log -SZLIB_BUF_MAX --oneline  # константа ZLIB_BUF_MAX
+git log -SE_compute --oneline  # имя функции E_compute
 \end{lstlisting}
 
 \subsection{Перезапись истории}
@@ -2795,7 +2799,7 @@ git filter-branch --commit-filter '
 
 Рассмотрим более сложный случай проецирования удаленных веток на локальные
 \begin{lstlisting}[
-style = cmd,
+style = bash,
 numbers = none
 ]
 git remote add origin https://github.com/LeorFinkelberg/Cheat_sheet_Git.git
@@ -2824,7 +2828,7 @@ git config remote.origin.fetch
 
 Если на сервере есть ветка \texttt{master}, локальный доступ к ее журналу можно получить так
 \begin{lstlisting}[
-style = cmd,
+style = bash,
 numbers = none
 ]
 git log origin/master
@@ -2854,7 +2858,7 @@ git config --local --list | grep 'fetch'
 
 Если же вы хотите выполнить некое однократное действие, указать спецификацию можно в командной строке. Чтобы извлечь данные из \emph{удаленной} ветки \texttt{master} и поместить их в \emph{локальную} ветку \verb|origin/mymaster|, напишите
 \begin{lstlisting}[
-style = cmd,
+style = bash,
 numbers = none
 ]
 git fetch origin master:refs/remotes/origin/mymaster
