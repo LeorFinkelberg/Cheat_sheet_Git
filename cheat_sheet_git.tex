@@ -2915,6 +2915,17 @@ git checkout fix
 git branch -f master ORIG_HEAD
 \end{lstlisting}
 
+\subsection{Замена одного файла другим без слияния}
+
+Если требуется просто заменить один файл другим без слияния (например, один pdf-файл другим), то можно воспользоваться такой констукцией
+\begin{lstlisting}[
+style = bash,
+numbers = none	
+]
+git checkout --ours file_name.pdf   # оставить файл без изменений
+git checkout --theirs file_name.pdf # заменить файлом из сливаемой ветки
+\end{lstlisting}
+
 
 % Источники в "Газовой промышленности" нумеруются по мере упоминания 
 \begin{thebibliography}{99}\addcontentsline{toc}{section}{Список литературы}
