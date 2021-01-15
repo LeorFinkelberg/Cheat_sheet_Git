@@ -2926,13 +2926,38 @@ git branch -f master ORIG_HEAD
 
 \subsection{Замена одного файла другим без слияния}
 
-Если требуется просто заменить один файл другим без слияния (например, один pdf-файл другим), то можно воспользоваться такой констукцией
+Если требуется просто заменить один файл другим \emph{без слияния} (например, один pdf-файл другим), то можно воспользоваться такой конструкцией (но предварительно следует перейти в \emph{состояние слияния}: например, \verb|git merge origin\master|). Затем следует с помощью команды \texttt{git status} выявить файлы, которые вызывают конфликт, и для каждого того файла выполнить
 \begin{lstlisting}[
 style = bash,
 numbers = none	
 ]
 git checkout --ours file_name.pdf   # оставить файл без изменений
+# или
 git checkout --theirs file_name.pdf # заменить файлом из сливаемой ветки
+\end{lstlisting}
+
+После чего необходимо проиндексировать изменения в этих файлах
+\begin{lstlisting}[
+style = bash,
+numbers = none	
+]
+git add file\_name.pdf
+\end{lstlisting}
+
+Чтобы закончить слияние необходимо сделать фиксацию
+\begin{lstlisting}[
+style = bash,
+numbers = none	
+]
+git commit --verbose
+\end{lstlisting}
+
+Результатом будет сообщение вида
+\begin{lstlisting}[
+style = bash,
+numbers = none	
+]
+Merge remote-tracking branch 'origin/main' into main
 \end{lstlisting}
 
 
