@@ -223,6 +223,17 @@ numbers = none
 git config --global core.autocrlf true
 \end{lstlisting}
 
+Для распознавания и исправления некоторых проблем, связанных с пробелами полезно
+включить следующую настройку
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+git config --global core.whitespace \
+  trailing-space,space-before-tab,indent-with-non-tab
+\end{lstlisting}
+
+
 \subsection{Хранение учетных данных}
 
 Учетные данные хранятся в памяти некоторое время без сохранения на диске (режим кеша)
