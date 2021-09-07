@@ -529,6 +529,15 @@ numbers = none
 git log --oneline refs/remotes/origin/mymaster
 \end{lstlisting}
 
+Вывести список наиболее часто изменяемых файлов
+\begin{lstlisting}[
+style = bash,
+numbers = none,
+]
+git log --name-only --pretty="format:" | sed '/^\s*$/'d | sort | uniq -c | sort
+-r
+\end{lstlisting}
+
 Задать множественную спецификацию ссылок для извлечения данных можно и в конфигурационном файле. Чтобы все время получать обновления из веток \texttt{master} и \texttt{experiment}, добавьте следующие строки в конфигурационный файл
 \begin{lstlisting}[
 style = bash,
