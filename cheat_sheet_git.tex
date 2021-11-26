@@ -107,7 +107,7 @@ numbers = none
 
 Чтобы система \texttt{Git} не рассматривала определенные файлы как неотслеживаемые и не пыталась индексировать их при выполнении команды \texttt{git add}, следует создать шаблон в файле \texttt{.gitignore}. Но иногда возникает необходимость сделать так, чтобы система игнорировала определенные файлы для всех ваших репозиториев. Если вы работаете на компьютере с операционной системой \texttt{Mac OS X}, то вам знакомы файлы \texttt{.DS\_Store} или, например, файлы, которые заканчиваются на \verb|~|.
 
-Параметр \texttt{core.exludesfile} позволяет записать файл \texttt{.gitignore}, действующий на глобальном уровне. Достаточно создать файл \verb|~/.gitignore_global| в вот таким содержимым
+Параметр \texttt{core.exludesfile} позволяет записать файл \texttt{.gitignore}, действующий на глобальном уровне. Достаточно создать файл \verb|~/.gitignore_global| с вот таким содержимым
 \begin{lstlisting}[
 style = bash,
 title = {\sffamily \~{}./gitignore\_global},
@@ -117,7 +117,7 @@ numbers = none
 .DS_Store
 \end{lstlisting}
 
-Теперь можно передать пусть до этого файла параметру \texttt{core.excludesfile}
+Теперь можно передать путь до этого файла параметру \texttt{core.excludesfile}
 \begin{lstlisting}[
 style = bash,
 numbers = none
@@ -540,6 +540,15 @@ numbers = none,
 ]
 git log --name-only --pretty="format:" | sed '/^\s*$/'d | sort | uniq -c | sort
 -r
+\end{lstlisting}
+
+Вывести историю изменения файла по регулярному выржению
+\begin{lstlisting}[
+style = bash,
+numbers = none,
+]
+git log -L/"check(self.*"/:model/optimizer/iotools/aux_data.py
+git log -L/"def read"/:model/.../file.py
 \end{lstlisting}
 
 Задать множественную спецификацию ссылок для извлечения данных можно и в конфигурационном файле. Чтобы все время получать обновления из веток \texttt{master} и \texttt{experiment}, добавьте следующие строки в конфигурационный файл
