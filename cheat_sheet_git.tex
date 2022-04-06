@@ -1249,6 +1249,16 @@ numbers = none
 git rm log/\*.log
 \end{lstlisting}
 
+\subsection{Удалить группу файлов из области индексирования}
+
+Отфильтровать строки, начинающиеся с символа \verb*|#|, затем выбрать строки, начинающиеся с символа \verb|A|, сделать срез с 3-его символа до конца строки и передать полученный список проиндексированных файлов с помощью синтаксиса POSIX-подстановки \verb*|$(...)| методу \verb*|restore|
+
+\begin{lstlisting}[
+language = cmd,
+numbers = none
+]
+git restore --staged $(git st -sb | grep -v "#" | grep "A" | cut -c 3-100)
+\end{lstlisting}
 
 \subsection{Переименование файлов}
 
