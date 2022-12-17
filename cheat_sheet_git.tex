@@ -1607,7 +1607,19 @@ git tag -l 'v0.2*.*'
 language = cmd,
 numbers = none
 ]
-git log -a v1.4 -m 'My version 1.4'
+git tag -a v1.4 -m 'My version 1.4'
+\end{lstlisting}
+
+Удалить тег
+\begin{lstlisting}[
+style = bash,
+numbers = none
+]
+# remote 
+git push --delete origin tagname
+
+# local
+git tag --delete tagname
 \end{lstlisting}
 
 Вывести информацию по тегу
