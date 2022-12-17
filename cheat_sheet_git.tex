@@ -2088,7 +2088,7 @@ git log refA refB ^refC
 git log refA refB --not refC
 \end{lstlisting}
 
-Вывести только те коммиты, которые есть либо в ветке \texttt{master}, либо в ветке \texttt{experiment}, но не в обеих ветках одновременно
+Вывести только те коммиты, которые есть либо в ветке \texttt{master}, либо в ветке \texttt{experiment}, но не в обеих ветках одновременно (по сути это антипересечение коммитов, triple-dot)
 
 \begin{lstlisting}[
 language = cmd,
