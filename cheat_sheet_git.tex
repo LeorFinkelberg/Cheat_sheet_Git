@@ -82,6 +82,31 @@ export PS1='\[\e[36m\][\u]\[\e[m\]:\[\e[33;1m\]\w$(__git_ps1 " (%s)")\[\e[m\]\$ 
 	\item локальный уровень (уровень репозитория): \verb|.git/config| (флаг \verb|--local|).
 \end{itemize}
 
+Типичный конфигурационный файл пользователя выглядит так
+\begin{lstlisting}[
+title = {\sffamily \$HOME/.gitconfig},
+style = bash,
+numbers = none	
+]
+[user]
+	email = alexander.podvoyskiy@idp.zyfra.com
+	name = Alexander Podvoyskiy
+	signingkey = typ4k1R8dvQDbBmP6zoc  # token
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[core]
+	editor = vim
+	pager =
+	autocrlf = true
+[alias]
+    st = status
+[help]
+	autocorrect = 10
+\end{lstlisting}
+
 Значения с каждого уровня переопределяют значения, заданные на предыдущем уровне. Например, значения в файле \verb|.git/config| переписывают значения в файле \verb|/etc/gitconfig|, т.е. настройки репозитория имеют приоритет выше, чем настройки для всех пользователей и всех их репозиториев.
 
 Вывести список всех настроек на системном, глобальном или локальном уровнях можно так
